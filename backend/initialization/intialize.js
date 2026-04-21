@@ -1,4 +1,4 @@
-import userModel from "../models/user.model.js";
+import userModel from "../src/models/user.model.js";
 
 const firstNames = ['Aarav', 'Aiden', 'Alex', 'Arjun', 'Blake', 'Casey', 'Chen', 'Cole', 'Dana', 'Dani', 'Dev', 'Eli', 'Elliot', 'Fiona', 'Faith', 'George', 'Glen', 'Hana', 'Harper', 'Iris', 'Ivan', 'Jade', 'Jordan', 'Kai', 'Kiran', 'Leo', 'Luna', 'Mia', 'Morgan', 'Nico', 'Noel', 'Olive', 'Omar', 'Parker', 'Priya', 'Quinn', 'Rey', 'Riley', 'Sam', 'Sasha', 'Taylor', 'Theo', 'Uma', 'Ursa', 'Val', 'Victor', 'Will', 'Wren', 'Yuki', 'Zoe'];
 

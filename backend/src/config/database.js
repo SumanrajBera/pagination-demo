@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { configApp } from './config.js';
 
-async function coonectToDB() {
+async function connectToDB() {
     try {
         await mongoose.connect(configApp.MONGO_URI)
         console.log("Connected to DB")
@@ -10,4 +10,4 @@ async function coonectToDB() {
     }
 }
 
-export default coonectToDB;
+export default connectToDB;
