@@ -1,66 +1,63 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import DataTable from './DataTable';
+import { useSelector } from 'react-redux';
+import { useFetch } from '../hook/useFetch.js';
 
-const CursorBasedSection = ({ data = [] }) => {
-    const [items, setItems] = useState([]);
-    const [cursor, setCursor] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const limit = 10;
-    const loaderRef = useRef(null)
-    const cursorRef = useRef(0)
-    const loadingRef = useRef(false)
+const CursorBasedSection = () => {
+    const records = useSelector(state => state.fetch.records)
+    const count = useSelector(state => state.fetch.count)
+    const total = useSelector(state => state.fetch.total)
+    const isLoading = useSelector(state => state.fetch.isLoading)
+    const { fetchCount, fetchRecords } = useFetch()
+    const observerRef = useRef(null)
+    const loadMoreRef = useRef(null)
 
     const loadMore = () => {
-        if (cursorRef.current >= data.length || loadingRef.current) return
-
-        loadingRef.current = true
-        setLoading(true)
-        setTimeout(() => {
-            const newData = data.slice(cursorRef.current, cursorRef.current + limit)
-            const newCursor = cursorRef.current + limit
-
-            setItems(prev => [...prev, ...newData])
-            cursorRef.current = newCursor
-            setCursor(newCursor)
-            loadingRef.current = false;
-            setLoading(false)
-        }, 800)
+        if (isLoading || count >= total) return
+        fetchRecords()
     }
 
     useEffect(() => {
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                loadMore()
-            }
-        }, { threshold: 0.5 })
+        loadMoreRef.current = loadMore
+    })
 
-        if (loaderRef.current) {
-            observer.observe(loaderRef.current);
+    const setLoaderRef = useCallback((node) => {
+        // cleanup previous observer
+        if (observerRef.current) {
+            observerRef.current.disconnect()
+            observerRef.current = null
         }
 
-        return () => observer.disconnect();
-    }, [cursor])
+        if (!node) return
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadMoreRef.current()
+            }
+        }, { threshold: 0 })
+
+        observer.observe(node)
+        observerRef.current = observer  // store reference for cleanup
+    }, [count])
 
     useEffect(() => {
-        setItems(data.slice(0, limit))
-        setCursor(limit)
+        fetchCount()
+        fetchRecords()
     }, [])
     return (
         <section className="section-card">
             <h2 className="section-title">Departmental Overview <span className="subtitle">(Infinite Scroll)</span></h2>
-            <DataTable items={items} />
+            <DataTable items={records} />
 
-            {cursor < data.length && (
-                <div ref={loaderRef} className="pagination-controls center" style={{ borderTop: 'none', padding: '24px 0', color: 'var(--on-surface-variant)' }}>
-                    <div className="loading-spinner"> {loading ? "Loading more..." : ""}</div>
+            <div
+                ref={count < total ? setLoaderRef : null}
+                className="pagination-controls center"
+                style={{ borderTop: 'none', padding: '24px 0', color: 'var(--on-surface-variant)' }}
+            >
+                <div className="loading-spinner">
+                    {count < total ? 'Loading more...' : 'End of results.'}
                 </div>
-            )}
-
-            {cursor >= data.length && (
-                <div className="pagination-controls center" style={{ borderTop: 'none', padding: '24px 0', color: 'var(--on-surface-variant)' }}>
-                    <div className="loading-spinner">End of results.</div>
-                </div>
-            )}
+            </div>
 
         </section>
     );

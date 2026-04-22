@@ -1,8 +1,13 @@
 import express from "express"
 import userModel from "./models/user.model.js"
+import cors from 'cors'
 
 const app = express()
 app.use(express.json())
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["POST", "GET"]
+}))
 
 app.get("/api/count", async (req, res) => {
     const count = await userModel.countDocuments();

@@ -6,11 +6,10 @@ const api = axios.create({
 
 export const recordCount = async function () {
     const res = await api.get("/count");
-    console.log(res)
     return res
 }
 
-export const fetchRecords = async function () {
-    const res = await api.get("/fetchRecords");
+export const recordFetch = async function (gt) {
+    const res = await api.post("/fetchRecords", { gt });
     return res
 }
